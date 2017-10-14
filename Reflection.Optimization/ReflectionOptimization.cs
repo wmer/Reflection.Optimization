@@ -9,92 +9,242 @@ using System.Linq.Expressions;
 namespace Reflection.Optimization {
     public delegate object ObjectActivator(params object[] args);
     public class ReflectionOptimizations {
+        //Methodos por tipos
+        //Genericos
         public U CreateMethod<U>(Type type, String methodName) {
-            var method = type.GetMethod(methodName);
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+            lock (new object()) {
+                var method = type.GetMethod(methodName);
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
         }
 
         public U CreateMethod<U>(Type type, String methodName, BindingFlags bindingFlags) {
-            var method = type.GetMethod(methodName, bindingFlags);
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+            lock (new object()) {
+                var method = type.GetMethod(methodName, bindingFlags);
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
         }
 
         public U CreateMethod<U>(Type type, String methodName, Type[] paramsType) {
-            var method = type.GetMethod(methodName, paramsType);
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+            lock (new object()) {
+                var method = type.GetMethod(methodName, paramsType);
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
+        }
+
+        //Não genéricos
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = type.GetMethod(methodName);
+                return method.CreateDelegate(dele);
+            }
+        }
+
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = type.GetMethod(methodName, bindingFlags);
+                return method.CreateDelegate(dele);
+            }
+        }
+
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName, Type[] paramsType) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = type.GetMethod(methodName, paramsType);
+                return method.CreateDelegate(dele);
+            }
+        }
+
+        //Methodos por Instâncias
+        //Genericos
+        public U CreateMethod<U>(object instanceClass, String methodName) {
+            lock (new object()) {
+                var method = instanceClass.GetType().GetMethod(methodName);
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
+        }
+
+        public U CreateMethod<U>(object instanceClass, String methodName, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var method = instanceClass.GetType().GetMethod(methodName, bindingFlags);
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
         }
 
         public U CreateMethod<U>(object instanceClass, String methodName, Type[] paramsType) {
-            var method = instanceClass.GetType().GetMethod(methodName, paramsType);
-            var del = method.CreateDelegate(typeof(U), instanceClass) as object;
-            return (U)del;
+            lock (new object()) {
+                var method = instanceClass.GetType().GetMethod(methodName, paramsType);
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
         }
 
-        public U CreateGenericMethod<U>(Type type, String methodName, Type[] argumentsType) {
-            var method = type.GetMethod(methodName).MakeGenericMethod(argumentsType);
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+        //Nao genéricos
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = instanceClass.GetType().GetMethod(methodName);
+                return method.CreateDelegate(dele, instanceClass);
+            }
         }
 
-        public U CreateGenericMethod<U>(Type type, String methodName, BindingFlags bindingFlags, Type[] argumentsType) {
-            var method = type.GetMethod(methodName, bindingFlags).MakeGenericMethod(argumentsType);
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = instanceClass.GetType().GetMethod(methodName, bindingFlags);
+                return method.CreateDelegate(dele, instanceClass);
+            }
         }
 
-        public U CreateGenericMethod<U>(Type type, String methodName, Type[] paramsType, Type[] argumentsType) {
-            var method = type.GetMethod(methodName, paramsType).MakeGenericMethod(argumentsType);
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName, Type[] paramsType) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = instanceClass.GetType().GetMethod(methodName, paramsType);
+                return method.CreateDelegate(dele, instanceClass);
+            }
         }
 
-        public U CreateGenericMethod<U>(object instanceClass, String methodName, Type[] argumentsType, Type[] paramsType) {
-            var method = instanceClass.GetType().GetMethod(methodName, paramsType).MakeGenericMethod(argumentsType);
-            var del = method.CreateDelegate(typeof(U), instanceClass) as object;
-            return (U)del;
-        }
-
+        //Com tipo e MethodInfo
+        //Genéricos
         public U CreateMethod<U>(MethodInfo method) {
-            var del = method.CreateDelegate(typeof(U)) as object;
-            return (U)del;
+            lock (new object()) {
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
         }
 
+        //Não genéricos
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, MethodInfo method) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                return method.CreateDelegate(dele);
+            }
+        }
+
+        //Methodos por Instâncias e MethodInfo
+        //Genericos
         public U CreateMethod<U>(object instanceClass, MethodInfo method) {
-            var del = method.CreateDelegate(typeof(U), instanceClass) as object;
-            return (U)del;
+            lock (new object()) {
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
         }
 
-        public Delegate CreateMethod(Type typeClass, Type delegateType, String methodName, Type[] paramsType) {
-            var method = typeClass.GetMethod(methodName, paramsType);
-            return method.CreateDelegate(delegateType);
+        //Nao genéricos
+        public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, object instanceClass, MethodInfo method) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                return method.CreateDelegate(dele, instanceClass);
+            }
         }
 
-        public Delegate CreateMethod(Type typeClass, Type delegateType, String methodName, Type[] paramsType, Type[] argumentsType) {
-            var method = typeClass.GetMethod(methodName, paramsType).MakeGenericMethod(argumentsType);
-            return method.CreateDelegate(delegateType);
+        //Metodos genéricos por tipo
+        //Genéricos
+        public U CreateGenericMethod<U>(Type type, String methodName, Type[] methodTypeArguments) {
+            lock (new object()) {
+                var method = type.GetMethod(methodName).MakeGenericMethod(methodTypeArguments);
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
         }
 
-        public Delegate CreateMethod(object instanceClass, Type delegateType, String methodName, Type[] paramsType, Type[] argumentsType) {
-            var method = instanceClass.GetType().GetMethod(methodName, paramsType).MakeGenericMethod(argumentsType);
-            return method.CreateDelegate(delegateType, instanceClass);
+        public U CreateGenericMethod<U>(Type type, String methodName, Type[] methodTypeArguments, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var method = type.GetMethod(methodName, bindingFlags).MakeGenericMethod(methodTypeArguments);
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
         }
 
-        public Delegate CreateMethod(Type delegateType, Type[] argumentsTypeFromDelegate, object instanceClass, MethodInfo method) {
-            var typeG = delegateType.MakeGenericType(argumentsTypeFromDelegate);
-            return method.CreateDelegate(typeG, instanceClass);
+        public U CreateGenericMethod<U>(Type type, String methodName, Type[] methodTypeArguments, Type[] paramsType) {
+            lock (new object()) {
+                var method = type.GetMethod(methodName, paramsType).MakeGenericMethod(methodTypeArguments);
+                var del = method.CreateDelegate(typeof(U)) as object;
+                return (U)del;
+            }
         }
 
-        public Delegate CreateMethod(Type delegateType, Type[] argumentsTypeFromDelegate, object instanceClass, String methodName) {
-            var method = instanceClass.GetType().GetMethod(methodName);
-            return CreateMethod(delegateType, argumentsTypeFromDelegate, instanceClass, method);
+        //Não genéricos
+        public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName, Type[] methodTypeArguments) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = type.GetMethod(methodName).MakeGenericMethod(methodTypeArguments);
+                return method.CreateDelegate(dele);
+            }
         }
 
-        public Delegate CreateMethod(Type delegateType, Type[] argumentsTypeFromDelegate, object instanceClass, String methodName, Type[] paramsType) {
-            var method = instanceClass.GetType().GetMethod(methodName, paramsType);
-            return CreateMethod(delegateType, argumentsTypeFromDelegate, instanceClass, method);
+        public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName, Type[] methodTypeArguments, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = type.GetMethod(methodName, bindingFlags).MakeGenericMethod(methodTypeArguments);
+                return method.CreateDelegate(dele);
+            }
+        }
+
+        public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName, Type[] methodTypeArguments, Type[] paramsType) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = type.GetMethod(methodName, paramsType).MakeGenericMethod(methodTypeArguments);
+                return method.CreateDelegate(dele);
+            }
+        }
+
+        //Methodos Genéricos por Instâncias
+        //Genericos
+        public U CreateGenericMethod<U>(object instanceClass, String methodName, Type[] methodTypeArguments) {
+            lock (new object()) {
+                var method = instanceClass.GetType().GetMethod(methodName).MakeGenericMethod(methodTypeArguments) ;
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
+        }
+
+        public U CreateGenericMethod<U>(object instanceClass, String methodName, Type[] methodTypeArguments, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var method = instanceClass.GetType().GetMethod(methodName, bindingFlags).MakeGenericMethod(methodTypeArguments);
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
+        }
+
+        public U CreateGenericMethod<U>(object instanceClass, String methodName, Type[] methodTypeArguments, Type[] paramsType) {
+            lock (new object()) {
+                var method = instanceClass.GetType().GetMethod(methodName, paramsType).MakeGenericMethod(methodTypeArguments);
+                var del = method.CreateDelegate(typeof(U), instanceClass) as object;
+                return (U)del;
+            }
+        }
+
+        //Nao genéricos
+        public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName, Type[] methodTypeArguments) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = instanceClass.GetType().GetMethod(methodName).MakeGenericMethod(methodTypeArguments);
+                return method.CreateDelegate(dele, instanceClass);
+            }
+        }
+
+        public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName, Type[] methodTypeArguments, BindingFlags bindingFlags) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = instanceClass.GetType().GetMethod(methodName, bindingFlags).MakeGenericMethod(methodTypeArguments);
+                return method.CreateDelegate(dele, instanceClass);
+            }
+        }
+
+        public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName, Type[] methodTypeArguments, Type[] paramsType) {
+            lock (new object()) {
+                var dele = delegateType.MakeGenericType(delegateArguments);
+                var method = instanceClass.GetType().GetMethod(methodName, paramsType).MakeGenericMethod(methodTypeArguments);
+                return method.CreateDelegate(dele, instanceClass);
+            }
         }
 
         public Delegate CretatePropertySetterMethod(PropertyInfo propertyInfo, object objectInstance) {
