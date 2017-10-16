@@ -11,9 +11,16 @@ namespace Reflection.Optimization.Helpers {
         private static Dictionary<String, IReadOnlyList<RuntimeLibrary>> runtimeLibrary = new Dictionary<string, IReadOnlyList<RuntimeLibrary>>();
         private static Dictionary<String, Assembly[]> assemblies = new Dictionary<string, Assembly[]>();
         private static Dictionary<Predicate<Type>, IEnumerable<Type>> types = new Dictionary<Predicate<Type>, IEnumerable<Type>>();
+        
+        private static object lock1 = new object();
+        private static object lock2 = new object();
+        private static object lock3 = new object();
+        private static object lock4 = new object();
+        private static object lock5 = new object();
+        private static object lock6 = new object();
 
         public static Assembly[] GetAssemblies() {
-            lock (new object()) {
+            lock (lock1) {
                 if (assemblies.ContainsKey("loaded")) {
                     return assemblies["loaded"];
                 } else {
@@ -33,7 +40,7 @@ namespace Reflection.Optimization.Helpers {
         }
 
         public static IEnumerable<Type> GetTypes(Predicate<Type> predicate) {
-            lock (new object()) {
+            lock (lock2) {
                 foreach (var assembly in GetAssemblies()) {
                     var types = assembly.GetTypes();
                     foreach (var type in types) {
@@ -46,7 +53,7 @@ namespace Reflection.Optimization.Helpers {
         }
 
         public static IEnumerable<Type> GetTypes(Predicate<Type> predicate, Assembly assm, bool first = false) {
-            lock (new object()) {
+            lock (lock3) {
                 if (types.ContainsKey(predicate)) {
                     return types[predicate];
                 }
@@ -86,7 +93,7 @@ namespace Reflection.Optimization.Helpers {
         }
 
         public static Type GetType(Assembly assembly, string typeName) {
-            lock (new object()) {
+            lock (lock4) {
                 Type myType = null;
                 foreach (var type in GetTypes(assembly)) {
                     if (type.Name.ToUpper() == typeName.ToUpper()) {
@@ -99,7 +106,7 @@ namespace Reflection.Optimization.Helpers {
         }
 
         public static IEnumerable<Type> GetTypes(Assembly assembly) {
-            lock (new object()) {
+            lock (lock5) {
                 try {
                     var types = assembly.GetTypes();
                     foreach (var type in types) {
@@ -110,7 +117,7 @@ namespace Reflection.Optimization.Helpers {
         }
 
         private static void Init() {
-            lock (new object()) {
+            lock (lock6) {
                 if (!runtimeLibrary.ContainsKey("loaded")) {
                     runtimeLibrary["loaded"] = DependencyContext.Default.RuntimeLibraries;
                 }
