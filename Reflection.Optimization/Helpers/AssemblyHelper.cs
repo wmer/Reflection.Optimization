@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Reflection.Optimization.Helpers {
     public class AssemblyHelper {
-        private static Dictionary<String, IReadOnlyList<RuntimeLibrary>> runtimeLibrary = new Dictionary<string, IReadOnlyList<RuntimeLibrary>>();
+        private static Assembly[] assembliesLoaded = AppDomain.CurrentDomain.GetAssemblies();
         private static Dictionary<String, Assembly[]> assemblies = new Dictionary<string, Assembly[]>();
         private static Dictionary<Predicate<Type>, IEnumerable<Type>> types = new Dictionary<Predicate<Type>, IEnumerable<Type>>();
         
@@ -23,19 +22,9 @@ namespace Reflection.Optimization.Helpers {
             lock (lock1) {
                 if (assemblies.ContainsKey("loaded")) {
                     return assemblies["loaded"];
-                } else {
-                    Init();
-                    var list = new List<Assembly>();
-                    foreach (var library in runtimeLibrary["loaded"]) {
-                        try {
-                            var assembly = Assembly.Load(new AssemblyName(library.Name));
-                            list.Add(assembly);
-                        } catch (Exception) { }
-                    }
-                    var assembliesArray = list.ToArray();
-                    assemblies["loaded"] = assembliesArray;
-                    return assembliesArray;
                 }
+                assemblies["loaded"] = assembliesLoaded;
+                return assembliesLoaded;
             }
         }
 
@@ -113,14 +102,6 @@ namespace Reflection.Optimization.Helpers {
                         yield return type;
                     }
                 } finally { }
-            }
-        }
-
-        private static void Init() {
-            lock (lock6) {
-                if (!runtimeLibrary.ContainsKey("loaded")) {
-                    runtimeLibrary["loaded"] = DependencyContext.Default.RuntimeLibraries;
-                }
             }
         }
     }
