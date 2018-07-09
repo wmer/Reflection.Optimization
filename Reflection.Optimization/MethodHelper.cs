@@ -10,18 +10,18 @@ namespace Reflection.Optimization {
     public delegate object ObjectActivator(params object[] args);
     public class MethodHelper {
 
-        private object lock1 = new object();
-        private object lock2 = new object();
-        private object lock3 = new object();
-        private object lock4 = new object();
-        private object lock5 = new object();
-        private object lock6 = new object();
-        private object lock7 = new object();
-        private object lock8 = new object();
-        private object lock9 = new object();
-        private object lock10 = new object();
+        private readonly object lock1 = new object();
+        private readonly object lock2 = new object();
+        private readonly object lock3 = new object();
+        private readonly object lock4 = new object();
+        private readonly object lock5 = new object();
+        private readonly object lock6 = new object();
+        private readonly object lock7 = new object();
+        private readonly object lock8 = new object();
+        private readonly object lock9 = new object();
+        private readonly object lock10 = new object();
 
-        //Methodos por tipos
+        #region Methodos por tipos
         public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName) =>
             CreateMethodWithName(delegateType.MakeGenericType(delegateArguments), type, methodName, null);
 
@@ -40,7 +40,9 @@ namespace Reflection.Optimization {
         public Delegate CreateMethod<T>(Type type, String methodName, Type[] paramsType) =>
             CreateMethodWitparamsType(typeof(T), type, methodName, null, paramsType);
 
-        //Methodos por Instâncias
+        #endregion
+
+        #region  Methodos por Instâncias
         public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName) =>
             CreateMethodWithName(delegateType.MakeGenericType(delegateArguments), instanceClass, methodName, null);
 
@@ -59,7 +61,9 @@ namespace Reflection.Optimization {
         public Delegate CreateMethod<T>(object instanceClass, String methodName, Type[] paramsType) =>
             CreateMethodWitparamsType(typeof(T), instanceClass, methodName, null, paramsType);
 
-        //Metodos genéricos por tipo
+        #endregion
+
+        #region  Metodos genéricos por tipo
         public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, Type type, String methodName, Type[] methodTypeArguments) =>
             CreateMethodWithName(delegateType.MakeGenericType(delegateArguments), type, methodName, methodTypeArguments);
 
@@ -77,8 +81,9 @@ namespace Reflection.Optimization {
 
         public Delegate CreateGenericMethod<T>(Type type, String methodName, Type[] methodTypeArguments, Type[] paramsType) =>
             CreateMethodWitparamsType(typeof(T), type, methodName, methodTypeArguments, paramsType);
+        #endregion
 
-        //Methodos Genéricos por Instâncias
+        #region Methodos Genéricos por Instâncias
         public Delegate CreateGenericMethod(Type delegateType, Type[] delegateArguments, object instanceClass, String methodName, Type[] methodTypeArguments) =>
             CreateMethodWithName(delegateType.MakeGenericType(delegateArguments), instanceClass, methodName, methodTypeArguments);
 
@@ -96,10 +101,11 @@ namespace Reflection.Optimization {
 
         public Delegate CreateGenericMethod<T>(object instanceClass, String methodName, Type[] methodTypeArguments, Type[] paramsType) =>
             CreateMethodWitparamsType(typeof(T), instanceClass, methodName, methodTypeArguments, paramsType);
+        #endregion
 
         //Com tipo e MethodInfo
         public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, MethodInfo method) {
-            lock (lock7) {
+            lock (lock1) {
                 var dele = delegateType.MakeGenericType(delegateArguments);
                 return method.CreateDelegate(dele);
             }
@@ -107,14 +113,14 @@ namespace Reflection.Optimization {
 
         //Methodos por Instâncias e MethodInfo
         public Delegate CreateMethod(Type delegateType, Type[] delegateArguments, object instanceClass, MethodInfo method) {
-            lock (lock8) {
+            lock (lock2) {
                 var dele = delegateType.MakeGenericType(delegateArguments);
                 return method.CreateDelegate(dele, instanceClass);
             }
         }
 
         public Delegate CretatePropertySetterMethod(PropertyInfo propertyInfo, object objectInstance) {
-            lock (lock9) {
+            lock (lock3) {
                 var method = propertyInfo.GetSetMethod();
                 var parameterType = method.GetParameters().First().ParameterType;
                 return CreateMethod(typeof(Action<>), new Type[] { parameterType }, objectInstance, method);
@@ -122,7 +128,7 @@ namespace Reflection.Optimization {
         }
 
         public Delegate CreatePropertyGetterMethod(PropertyInfo propertyInfo, object objectInstance) {
-            lock (lock10) {
+            lock (lock4) {
                 var getMethod = propertyInfo.GetGetMethod();
                 return CreateMethod(typeof(Func<>), new Type[] { getMethod.ReturnType }, objectInstance, getMethod);
             }
@@ -130,7 +136,7 @@ namespace Reflection.Optimization {
 
         //metodo por tipo
         private Delegate CreateMethodWithName(Type delegateType, Type type, String methodName, Type[] methodTypeArguments) {
-            lock (lock1) {
+            lock (lock5) {
                 var method = type.GetMethod(methodName);
                 if (methodTypeArguments != null) {
                     method.MakeGenericMethod(methodTypeArguments);
@@ -140,7 +146,7 @@ namespace Reflection.Optimization {
         }
 
         private Delegate CreateMethodWithBindingFlags(Type delegateType, Type type, String methodName, Type[] methodTypeArguments, BindingFlags bindingFlags) {
-            lock (lock2) {
+            lock (lock6) {
                 var method = type.GetMethod(methodName, bindingFlags);
                 if (methodTypeArguments != null) {
                     method.MakeGenericMethod(methodTypeArguments);
@@ -150,7 +156,7 @@ namespace Reflection.Optimization {
         }
 
         private Delegate CreateMethodWitparamsType(Type delegateType, Type type, String methodName, Type[] methodTypeArguments, Type[] paramsType) {
-            lock (lock3) {
+            lock (lock7) {
                 var method = type.GetMethod(methodName, paramsType);
                 if (methodTypeArguments != null) {
                     method.MakeGenericMethod(methodTypeArguments);
@@ -161,7 +167,7 @@ namespace Reflection.Optimization {
 
         //metodo por instância
         private Delegate CreateMethodWithName(Type delegateType, object instanceClass, String methodName, Type[] methodTypeArguments) {
-            lock (lock4) {
+            lock (lock8) {
                 var method = instanceClass.GetType().GetMethod(methodName);
                 if (methodTypeArguments != null) {
                     method.MakeGenericMethod(methodTypeArguments);
@@ -171,7 +177,7 @@ namespace Reflection.Optimization {
         }
 
         private Delegate CreateMethodWithBindingFlags(Type delegateType, object instanceClass, String methodName, Type[] methodTypeArguments, BindingFlags bindingFlags) {
-            lock (lock5) {
+            lock (lock9) {
                 var method = instanceClass.GetType().GetMethod(methodName, bindingFlags);
                 if (methodTypeArguments != null) {
                     method.MakeGenericMethod(methodTypeArguments);
@@ -181,7 +187,7 @@ namespace Reflection.Optimization {
         }
 
         private Delegate CreateMethodWitparamsType(Type delegateType, object instanceClass, String methodName, Type[] methodTypeArguments, Type[] paramsType) {
-            lock (lock6) {
+            lock (lock10) {
                 var method = instanceClass.GetType().GetMethod(methodName, paramsType);
                 if (methodTypeArguments != null) {
                     method.MakeGenericMethod(methodTypeArguments);

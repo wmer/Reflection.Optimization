@@ -6,11 +6,11 @@ using System.Text;
 
 namespace Reflection.Optimization {
     public class ConstructorHelper {
-        private object lock32 = new object();
-        private object lock33 = new object();
+        private readonly object _lock1 = new object();
+        private readonly object _lock2 = new object();
 
         public ObjectActivator CreateConstructor(Type type, Type[] arguments) {
-            lock (lock32) {
+            lock (_lock1) {
                 var constructor = type.GetConstructor(arguments);
                 var activator = typeof(ObjectActivator);
                 ParameterInfo[] paramsInfo = constructor.GetParameters();
@@ -32,7 +32,7 @@ namespace Reflection.Optimization {
         }
 
         public Delegate CreateConstructorFroGenericClass(Type type, Type[] argumentsType, Type[] arguments) {
-            lock (lock33) {
+            lock (_lock2) {
                 Type constructed = type.MakeGenericType(argumentsType);
                 return CreateConstructor(constructed, arguments);
             }

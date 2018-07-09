@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>William Santana</Authors>
+    <PackageProjectUrl>https://github.com/wmer/Reflection.Optimization</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/wmer/Reflection.Optimization</RepositoryUrl>
+    <Version>1.0.2</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
   </PropertyGroup>
 
 </Project>
